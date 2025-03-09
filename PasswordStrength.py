@@ -1,10 +1,9 @@
 import streamlit as st
 import re
 import random
-import pyperclip
 
 # Common weak passwords list
-COMMON_PASSWORDS = {"password", "123456", "qwerty", "abc123", "password123", "letmein", "welcome", "admin", "123456789"}
+COMMON_PASSWORDS = ["password", "123456", "12345678", "qwerty", "abc123", "password123"]
 
 # Function to check password strength
 def check_password_strength(password):
@@ -12,17 +11,17 @@ def check_password_strength(password):
     feedback = []
 
     if password.lower() in COMMON_PASSWORDS:
-        return "❌ Too common! Choose a secure password.", "Weak 😞", 0, "red"
+        return "❌ This password is too common! Choose a more secure one.", "Weak"
 
     if len(password) >= 8:
         score += 1
     else:
-        feedback.append("❌ Password must be at least 8 characters long.")
+        feedback.append("❌ Password should be at least 8 characters long.")
 
     if re.search(r"[A-Z]", password) and re.search(r"[a-z]", password):
         score += 1
     else:
-        feedback.append("❌ Include both uppercase & lowercase letters.")
+        feedback.append("❌ Include both uppercase and lowercase letters.")
 
     if re.search(r"\d", password):
         score += 1
@@ -32,49 +31,33 @@ def check_password_strength(password):
     if re.search(r"[!@#$%^&*]", password):
         score += 1
     else:
-        feedback.append("❌ Include one special character (!@#$%^&*).")
+        feedback.append("❌ Include at least one special character (!@#$%^&*).")
 
-    # Strength Rating with Emoji & Progress Color
+    # Strength Rating
     if score == 5:
-        return "✅ Strong Password! 😎", "Strong", 100, "#28a745"
+        return "✅ Strong Password!", "Strong"
     elif score >= 3:
-        return "⚠️ Moderate Password 😐 - Improve security.", "Moderate", 60, "#ffc107"
+        return "⚠️ Moderate Password - Consider adding more security features.", "Moderate"
     else:
-        return "\n".join(feedback), "Weak 😞", 30, "#dc3545"
+        return "\n".join(feedback), "Weak"
 
-# Strong Password Generator
+# Function to generate a strong password
 def generate_strong_password():
     characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
     return ''.join(random.choice(characters) for _ in range(12))
 
-# Copy password to clipboard
-def copy_to_clipboard(password):
-    pyperclip.copy(password)
-
 # Streamlit UI
-st.set_page_config(page_title="🔐 Password Strength Checker", page_icon="🔒", layout="centered")
+st.title("🔐 Password Strength Meter")
 
-st.markdown("<h1 style='text-align: center;'>🔐 Password Strength Meter</h1>", unsafe_allow_html=True)
+password = st.text_input("Enter your password:", type="password")
 
-# Show/Hide Password Feature
-show_password = st.checkbox("👁 Show Password", value=False)
-password = st.text_input("Enter your password:", type="text" if show_password else "password")
+if st.button("Check Strength"):
+    if password:
+        feedback, strength = check_password_strength(password)
+        st.subheader("Password Strength: " + strength)
+        st.write(feedback)
 
-# Live Strength Indicator with Colored Progress Bar & Emoji
-if password:
-    feedback, strength, progress, color = check_password_strength(password)
-    st.progress(progress / 100)  # Convert 0-100 to 0-1 for progress bar
-    st.markdown(f"<h3 style='color: {color}; text-align: center;'>Strength: {strength}</h3>", unsafe_allow_html=True)
-    st.write(feedback)
-
-# Strong Password Generator Button
-if st.button("🛠 Generate Strong Password"):
+# Strong Password Generator
+if st.button("Generate Strong Password"):
     strong_password = generate_strong_password()
     st.text("🔑 Suggested Strong Password: " + strong_password)
-    if st.button("📋 Copy Password to Clipboard"):
-        copy_to_clipboard(strong_password)
-        st.success("✅ Password Copied!")
-
-# Footer
-st.markdown("---")
-st.markdown("<p style='text-align: center; color: #00FFD1;'>Made with ❤️ using Streamlit</p>", unsafe_allow_html=True)
