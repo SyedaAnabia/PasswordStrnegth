@@ -2,58 +2,62 @@ import re
 import random
 
 # Common weak passwords list
-COMMON_PASSWORDS = ["password", "123456", "12345678", "qwerty", "abc123", "password123"]
+COMMON_PASSWORDS = {"password", "123456", "qwerty", "abc123", "password123", "letmein", "welcome", "admin", "123456789"}
 
 # Function to check password strength
 def check_password_strength(password):
     score = 0
-    
-    # Check if password is in common passwords list
+    feedback = []
+
+    # Blacklist Check
     if password.lower() in COMMON_PASSWORDS:
-        print("❌ This password is too common! Choose a more secure one.")
-        return
+        return "❌ Too common! Choose a secure password.", "Weak 😞", 1
 
     # Length Check
     if len(password) >= 8:
         score += 1
     else:
-        print("❌ Password should be at least 8 characters long.")
-    
+        feedback.append("❌ Password must be at least 8 characters long.")
+
     # Upper & Lowercase Check
     if re.search(r"[A-Z]", password) and re.search(r"[a-z]", password):
         score += 1
     else:
-        print("❌ Include both uppercase and lowercase letters.")
-    
+        feedback.append("❌ Include both uppercase & lowercase letters.")
+
     # Digit Check
     if re.search(r"\d", password):
         score += 1
     else:
-        print("❌ Add at least one number (0-9).")
-    
+        feedback.append("❌ Add at least one number (0-9).")
+
     # Special Character Check
     if re.search(r"[!@#$%^&*]", password):
         score += 1
     else:
-        print("❌ Include at least one special character (!@#$%^&*).")
-    
+        feedback.append("❌ Include one special character (!@#$%^&*).")
+
     # Strength Rating
     if score == 5:
-        print("✅ Strong Password!")
+        return "✅ Strong Password! 😎", "Strong", 5
     elif score >= 3:
-        print("⚠️ Moderate Password - Consider adding more security features.")
+        return "⚠️ Moderate Password 😐 - Consider adding more security features.", "Moderate", score
     else:
-        print("❌ Weak Password - Improve it using the suggestions above.")
+        return "\n".join(feedback), "Weak 😞", score
 
-# Function to generate a strong password
+# Strong Password Generator (20 chars)
 def generate_strong_password():
     characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
     return ''.join(random.choice(characters) for _ in range(12))
 
-# User Input
+# Get user input
 password = input("Enter your password: ")
-check_password_strength(password)
+message, strength, score = check_password_strength(password)
 
-# Suggest strong password if needed
-if input("Do you want a strong password suggestion? (yes/no): ").lower() == "yes":
-    print("🔑 Suggested Strong Password: ", generate_strong_password())
+print("\n🔍 Password Analysis:")
+print(message)
+
+if strength == "Weak 😞":
+    print("\n💡 Suggestion: Try this strong password →", generate_strong_password())
+elif strength == "Strong":
+    print("🎉 Your password is secure!")
