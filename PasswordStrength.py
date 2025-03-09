@@ -4,7 +4,7 @@ import random
 import pyperclip
 
 # Common weak passwords list
-COMMON_PASSWORDS = ["password", "123456", "qwerty", "abc123", "password123", "letmein", "welcome", "admin"]
+COMMON_PASSWORDS = ["password", "123456", "qwerty", "abc123", "password123", "letmein", "welcome", "admin", "123456789"]
 
 # Function to check password strength
 def check_password_strength(password):
@@ -17,7 +17,7 @@ def check_password_strength(password):
     if len(password) >= 8:
         score += 1
     else:
-        feedback.append("❌ At least 8 characters required.")
+        feedback.append("❌ Password must be at least 8 characters long.")
 
     if re.search(r"[A-Z]", password) and re.search(r"[a-z]", password):
         score += 1
@@ -36,11 +36,11 @@ def check_password_strength(password):
 
     # Strength Rating with Emoji & Progress Color
     if score == 5:
-        return "✅ Strong Password! 😎", "Strong", 100, "green"
+        return "✅ Strong Password! 😎", "Strong", 100, "#28a745"
     elif score >= 3:
-        return "⚠️ Moderate Password 😐 - Improve security.", "Moderate", 60, "orange"
+        return "⚠️ Moderate Password 😐 - Improve security.", "Moderate", 60, "#ffc107"
     else:
-        return "\n".join(feedback), "Weak 😞", 30, "red"
+        return "\n".join(feedback), "Weak 😞", 30, "#dc3545"
 
 # Strong Password Generator (20 chars)
 def generate_strong_password():
@@ -54,7 +54,7 @@ def copy_to_clipboard(password):
 # Streamlit UI
 st.set_page_config(page_title="🔐 Password Strength Checker", page_icon="🔒", layout="centered")
 
-# Custom CSS for Neon Look
+# Custom CSS for Modern Look
 st.markdown("""
     <style>
     body { background-color: #121212; color: white; text-align: center; }
@@ -65,10 +65,11 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-st.markdown("<h1>🔐 Cyberpunk Password Strength Meter</h1>", unsafe_allow_html=True)
+st.markdown("<h1>🔐 Password Strength Meter</h1>", unsafe_allow_html=True)
 
-# Password Input Field
-password = st.text_input("Enter your password:", type="password")
+# Show/Hide Password Feature
+show_password = st.checkbox("👁 Show Password", value=False)
+password = st.text_input("Enter your password:", type="text" if show_password else "password")
 
 # Live Strength Indicator with Colored Progress Bar & Emoji
 if password:
